@@ -1,54 +1,43 @@
 import { useEffect, useState } from 'react';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import './App.css';
 
 interface Metrics {
   error?: string;
-  os: {
-    platform: string;
-    distro: string;
-    uptime: number;
-  };
-  memory: {
-    total: number;
-    used: number;
-    free: number;
-    percentage: string;
-  };
-  cpu: {
-    usage: string;
-    cores: string[];
-  };
-  storage: {
-    fs: string;
-    size: number;
-    used: number;
-    use: number;
-  }[];
-  docker: {
-    id: string;
-    name: string;
-    image: string;
-    state: string;
-  }[];
+  os: { platform: string; distro: string; uptime: number; };
+  memory: { total: number; used: number; free: number; percentage: string; };
+  cpu: { usage: string; cores: string[]; };
+  storage: { fs: string; size: number; used: number; use: number; }[];
+  docker: { id: string; name: string; image: string; state: string; }[];
 }
 
 function App() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/metrics');
-        const data = await response.json();
-        setMetrics(data);
+        const resMetrics = await fetch('http://localhost:3000/api/metrics');
+        const dataMetrics = await resMetrics.json();
+        setMetrics(dataMetrics);
+
+        const resHistory = await fetch('http://localhost:3000/api/history');
+        const dataHistory = await resHistory.json();
+        
+        const formattedHistory = dataHistory.reverse().map((item: any) => ({
+          time: new Date(item.timestamp).toLocaleTimeString(),
+          cpu: parseFloat(item.cpu.usage),
+          ram: parseFloat(item.memory.percentage)
+        }));
+        setHistory(formattedHistory);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchMetrics();
-    const interval = setInterval(fetchMetrics, 5000);
-
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -76,6 +65,23 @@ function App() {
           <p style={{ textAlign: 'center', color: '#a0a0a0', marginBottom: '2rem' }}>
             {metrics.os?.distro} | Uptime: {formatUptime(metrics.os?.uptime || 0)}
           </p>
+
+          <div style={{ maxWidth: '1200px', margin: '0 auto 2rem auto', backgroundColor: '#1e1e1e', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+            <h2 style={{ borderBottom: '1px solid #333', paddingBottom: '0.5rem', marginTop: 0, marginBottom: '1.5rem' }}>Histórico de Carga (CPU y RAM)</h2>
+            <div style={{ height: '300px', width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={history}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="time" stroke="#a0a0a0" fontSize={12} />
+                  <YAxis stroke="#a0a0a0" fontSize={12} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ backgroundColor: '#2d2d2d', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                  <Line type="monotone" dataKey="cpu" stroke="#60a5fa" strokeWidth={2} dot={false} name="CPU %" />
+                  <Line type="monotone" dataKey="ram" stroke="#4ade80" strokeWidth={2} dot={false} name="RAM %" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
             
             <div style={{ backgroundColor: '#1e1e1e', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
