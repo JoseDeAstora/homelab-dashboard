@@ -18,11 +18,11 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resMetrics = await fetch('http://localhost:3000/api/metrics');
+        const resMetrics = await fetch('https://gentle-publicity-saint-feof.trycloudflare.com/api/metrics');
         const dataMetrics = await resMetrics.json();
         setMetrics(dataMetrics);
 
-        const resHistory = await fetch('http://localhost:3000/api/history');
+        const resHistory = await fetch('https://gentle-publicity-saint-feof.trycloudflare.com/api/history');
         const dataHistory = await resHistory.json();
         
         const formattedHistory = dataHistory.reverse().map((item: any) => ({
