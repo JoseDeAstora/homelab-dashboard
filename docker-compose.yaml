@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mongodb:
     image: mongo:latest
@@ -12,11 +14,9 @@ services:
     build: ./backend
     container_name: homelab-backend
     restart: always
-    ports:
-      - "3000:3000"
     environment:
       - PORT=3000
-      - MONGO_URI=mongodb://mongodb:27017/homelab
+      - MONGO_URI=mongodb://homelab-mongodb:27017/homelab
     depends_on:
       - mongodb
     volumes:
