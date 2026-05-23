@@ -15,14 +15,16 @@ function App() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [history, setHistory] = useState<any[]>([]);
 
+  const API_URL =  'https://api.joseserver.es';
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resMetrics = await fetch('https://trustees-estimation-finest-rpm.trycloudflare.com/api/metrics');
+        const resMetrics = await fetch(`${API_URL}/api/metrics`);
         const dataMetrics = await resMetrics.json();
         setMetrics(dataMetrics);
 
-        const resHistory = await fetch('https://trustees-estimation-finest-rpm.trycloudflare.com/api/history');
+        const resHistory = await fetch(`${API_URL}/api/history`);
         const dataHistory = await resHistory.json();
         
         const formattedHistory = dataHistory.reverse().map((item: any) => ({
