@@ -2,6 +2,7 @@ services:
   mongodb:
     image: mongo:latest
     container_name: homelab-mongodb
+    restart: always
     ports:
       - "27017:27017"
     volumes:
@@ -10,6 +11,7 @@ services:
   backend:
     build: ./backend
     container_name: homelab-backend
+    restart: always
     ports:
       - "3000:3000"
     environment:
@@ -17,6 +19,18 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/homelab
     depends_on:
       - mongodb
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: homelab-tunnel
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZWYyMGUwOGU2ZTJjYTA4OTRlZDg1MGZkMDliYTM4MDUiLCJ0IjoiMzUwNDM0ZTItNGVhZi00YTQ0LWJhNjctMmE0NjY2NzJmYWU2IiwicyI6IllqQm1OMlF6WVRrdE1HTmxNeTAwTXpVekxUazBPRFV0TlRVMU4yWmhaalF5WlRkayJ9
+    depends_on:
+      - backend
 
 volumes:
   mongodb_data:
