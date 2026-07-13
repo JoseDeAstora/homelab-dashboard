@@ -29,6 +29,8 @@ services:
     command: tunnel --no-autoupdate run
     environment:
       - TUNNEL_TOKEN=eyJhIjoiZWYyMGUwOGU2ZTJjYTA4OTRlZDg1MGZkMDliYTM4MDUiLCJ0IjoiMzUwNDM0ZTItNGVhZi00YTQ0LWJhNjctMmE0NjY2NzJmYWU2IiwicyI6IllqQm1OMlF6WVRrdE1HTmxNeTAwTXpVekxUazBPRFV0TlRVMU4yWmhaalF5WlRkayJ9
+      - TUNNEL_TRANSPORT_PROTOCOL=http2
+
     depends_on:
       - backend
 
